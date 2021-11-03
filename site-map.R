@@ -53,12 +53,12 @@ sb_basemap <- get_stamenmap(bb,
 #ggmap(sb_basemap)
   
 (insetmap <- ggmap(sb_basemap) + # base google maps tile
-  geom_point(data = map_sf, aes(x = lon, y = lat, fill = Site), 
+  geom_point(data = map_sf, aes(x = lon, y = lat), 
           size = 4,
-          shape = 21,
+          shape = 16,
           inherit.aes = FALSE) + # adds points
-  scale_fill_manual(name = "Sampling Location", 
-                     values = cal_palette("fire", n = 8, type = "continuous")) +
+  #scale_fill_manual(name = "Sampling Location", 
+                     #values = cal_palette("fire", n = 8, type = "continuous")) +
   geom_text_repel(data = map_sf, 
                      aes(x = lon, 
                          y = lat, 
@@ -146,7 +146,7 @@ fp_3857 <- st_transform(final_perimeter, 3857)
 # Combine the maps together.
 fig1 <- (fullmap + insetmap)
 
-# Export map to desktop.
+# Export map.
 
 # ggsave(fig1,
 #        filename = "figures/Fig1_map.png",
