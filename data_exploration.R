@@ -68,6 +68,9 @@ summary2 <- dat_ed %>%
             AAV = mean(AcAdv, na.rm = TRUE), sdbdv = sd(AcAdv, na.rm = TRUE)) %>%
   ungroup()
 
+# Export this for inclusion in the manuscript as table 1
+# write_csv(summary2, path = "data_working/table1.csv")
+
 # Generate plots of select data
 dat_plots <- summary2 %>%
   # replacing the Montecito debris category for ease of plotting
@@ -141,5 +144,89 @@ dat_plots <- summary2 %>%
     theme_bw())
 
 # Need to examine same measures in core depths at all marine sites sampled.
+
+#### Results calculations ####
+
+# % OC measures
+
+min(dat_ed$perc_OC) # 0.05
+max(dat_ed$perc_OC) # 3.59
+
+a <- dat_ed %>%
+  group_by(Environment_f) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE))
+
+a1 <- dat_ed %>%
+  filter(Location_id %in% c("GBEA", "GOSL")) %>%
+  group_by(Date) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE))
+
+a2 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Location_id) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE))
+
+a3 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Water_Depth) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE))
+
+a4 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Core_Section) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE))
+
+# % OC figure
+(fig7 <- ggplot(dat_plots) +
+  geom_point(aes(x = Date, y = OC, color = loc_plot)) +
+  scale_color_manual(name = "Sampling Location", 
+                     values = cal_palette("fire", n = 6, type = "continuous")) +
+  theme_bw())
+
+# δ13C measures
+
+min(dat_ed$d13C) # -27.05
+max(dat_ed$d13C) # -21.52
+
+b <- dat_ed %>%
+  group_by(Environment_f) %>%
+  summarize(mean13C = mean(d13C, na.rm = TRUE),
+            sd13C = sd(d13C, na.rm = TRUE))
+
+b1 <- dat_ed %>%
+  filter(Location_id %in% c("GBEA", "GOSL")) %>%
+  group_by(Date) %>%
+  summarize(meand13C = mean(d13C, na.rm = TRUE),
+            sdd13C = sd(d13C, na.rm = TRUE))
+
+b2 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Location_id) %>%
+  summarize(mean13C = mean(d13C, na.rm = TRUE),
+            sd13C = sd(d13C, na.rm = TRUE))
+
+b3 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Water_Depth) %>%
+  summarize(mean13C = mean(d13C, na.rm = TRUE),
+            sd13C = sd(d13C, na.rm = TRUE))
+
+b4 <- dat_ed %>%
+  filter(Environment_f == "Ocean") %>%
+  group_by(Core_Section) %>%
+  summarize(mean13C = mean(d13C, na.rm = TRUE),
+            sd13C = sd(d13C, na.rm = TRUE))
+
+# d13C figure
+(fig8 <- ggplot(dat_plots) +
+    geom_point(aes(x = Date, y = D13C, color = loc_plot)) +
+    scale_color_manual(name = "Sampling Location", 
+                       values = cal_palette("fire", n = 6, type = "continuous")) +
+    theme_bw())
 
 # End of script.
