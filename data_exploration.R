@@ -127,6 +127,73 @@ dat_plots <- summary2 %>%
 #        units = "cm"
 # )
 
+#### Manuscript Figure 1 ####
+dat_F1A <- dat_ed %>%
+  group_by(Location_f, Date) %>%
+  summarize(D13C = mean(d13C, na.rm = TRUE), 
+            sdD13C = sd(d13C, na.rm = TRUE),
+            PYC = mean(pyC, na.rm = TRUE), 
+            sdPYC = sd(pyC, na.rm = TRUE),
+            LAM = mean(Lambda, na.rm = TRUE), 
+            sdLAM = sd(Lambda, na.rm = TRUE)) %>%
+  ungroup() %>%
+  # replacing the Montecito debris category for ease of plotting
+  mutate(loc_plot = factor(case_when(Location_f == "MD" | Location_f == "DD" ~ "DDS",
+                                     TRUE ~ as.character(Location_f)),
+                           levels = c("DDS", "CD", "GBEA", "GOSL", "GOBW", "GOBE"))) %>%
+  mutate(date_plot = factor(case_when(Date == "2018-02-02" ~ "A",
+                               Date == "2018-02-23" ~ "B",
+                               TRUE ~ "C")))
+
+# Pyrogenic C results vs. d13C values at all sites
+(F1A <- dat_F1A %>%
+    filter(Location_f != "CD") %>% # removing clay debris layer for now
+    ggplot(aes(x = D13C, y = PYC, fill = date_plot, shape = loc_plot)) +
+    # adding all sites except clay debris layer
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Date", 
+                      values = cal_palette("lupinus"),
+                      labels = c("Feb 2", "Feb 23", "Apr 23-24"),
+                      guide = 'none' # remove legend
+                      ) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(21, 22, 23, 24, 25),
+                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East"),
+                       guide = 'none' # remove legend
+                       ) +
+    labs(y = "% Pyrogenic Carbon",
+         x = expression("δ"^{13}*"C (‰)")) +
+    # have to override the aes for the legend
+    #guides(fill = guide_legend(override.aes=list(shape=21))) +
+    theme_bw())
+
+# Lambda results vs. d13C values at all sites
+(F1B <- dat_F1A %>%
+    filter(Location_f != "CD") %>% # removing clay debris layer for now
+    ggplot(aes(x = D13C, y = LAM, fill = date_plot, shape = loc_plot)) +
+    # adding all sites except clay debris layer
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Date", 
+                      values = cal_palette("lupinus"),
+                      labels = c("Feb 2", "Feb 23", "Apr 23-24")) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(21, 22, 23, 24, 25),
+                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East")) +
+    labs(y = "Lambda (mg/100 mg OC)",
+         x = expression("δ"^{13}*"C (‰)")) +
+    # have to override the aes for the legend
+    guides(fill = guide_legend(override.aes=list(shape=21))) +
+    theme_bw())
+
+# Combine above plots into a single figure and export for easier viewing.
+(fig1_manuscript <- (F1A + F1B))
+
+ggsave(("figures/Fig2_pyc_lam.png"),
+       width = 20,
+       height = 8,
+       units = "cm"
+)
+
 # SV vs. CV values at all sites
 (fig5 <- dat_plots %>%
     ggplot(aes(x = log10(cv), y = log10(sv), color = loc_plot)) +
