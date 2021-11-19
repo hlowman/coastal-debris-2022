@@ -140,53 +140,50 @@ dat_F1A <- dat_ed %>%
   # replacing the Montecito debris category for ease of plotting
   mutate(loc_plot = factor(case_when(Location_f == "MD" | Location_f == "DD" ~ "DDS",
                                      TRUE ~ as.character(Location_f)),
-                           levels = c("DDS", "CD", "GBEA", "GOSL", "GOBW", "GOBE"))) %>%
+                           levels = c("DDS", "GBEA", "GOSL", "GOBW", "GOBE", "CD"))) %>%
   mutate(date_plot = factor(case_when(Date == "2018-02-02" ~ "A",
                                Date == "2018-02-23" ~ "B",
+                               Location_f == "CD" ~ NA_character_,
                                TRUE ~ "C")))
 
 # Pyrogenic C results vs. d13C values at all sites
 (F1A <- dat_F1A %>%
-    filter(Location_f != "CD") %>% # removing clay debris layer for now
     ggplot(aes(x = D13C, y = PYC, fill = date_plot, shape = loc_plot)) +
-    # adding all sites except clay debris layer
     geom_point(size = 3) +
     scale_fill_manual(name = "Sampling Date", 
-                      values = cal_palette("lupinus"),
+                      values = cal_palette("sierra2"),
                       labels = c("Feb 2", "Feb 23", "Apr 23-24"),
                       guide = 'none' # remove legend
                       ) +
     scale_shape_manual(name = "Sampling Site",
-                       values = c(21, 22, 23, 24, 25),
-                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East"),
+                       values = c(21, 22, 23, 24, 25, 19),
+                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East", "Clay Debris"),
                        guide = 'none' # remove legend
                        ) +
     labs(y = "% Pyrogenic Carbon",
          x = expression("δ"^{13}*"C (‰)")) +
-    # have to override the aes for the legend
-    #guides(fill = guide_legend(override.aes=list(shape=21))) +
     theme_bw())
 
 # Lambda results vs. d13C values at all sites
 (F1B <- dat_F1A %>%
-    filter(Location_f != "CD") %>% # removing clay debris layer for now
     ggplot(aes(x = D13C, y = LAM, fill = date_plot, shape = loc_plot)) +
-    # adding all sites except clay debris layer
     geom_point(size = 3) +
     scale_fill_manual(name = "Sampling Date", 
-                      values = cal_palette("lupinus"),
-                      labels = c("Feb 2", "Feb 23", "Apr 23-24")) +
+                      values = cal_palette("sierra2"),
+                      labels = c("Feb 2", "Feb 23", "Apr 23-24"),
+                      na.translate = F) +
     scale_shape_manual(name = "Sampling Site",
-                       values = c(21, 22, 23, 24, 25),
-                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East")) +
-    labs(y = "Lambda (mg/100 mg OC)",
+                       values = c(21, 22, 23, 24, 25, 19),
+                       labels = c("Deposition Site", "Goleta Beach", "Goleta Slough", "Goleta Bay West", "Goleta Bay East", "Low Tide Line")) +
+    labs(y = "Λ (mg/100 mg OC)",
          x = expression("δ"^{13}*"C (‰)")) +
     # have to override the aes for the legend
     guides(fill = guide_legend(override.aes=list(shape=21))) +
     theme_bw())
 
 # Combine above plots into a single figure and export for easier viewing.
-(fig1_manuscript <- (F1A + F1B))
+(fig1_manuscript <- (F1A + F1B) +
+    plot_annotation(tag_levels = 'A'))
 
 ggsave(("figures/Fig2_pyc_lam.png"),
        width = 20,
@@ -210,7 +207,99 @@ ggsave(("figures/Fig2_pyc_lam.png"),
                        values = cal_palette("fire", n = 6, type = "continuous")) +
     theme_bw())
 
-# Need to examine same measures in core depths at all marine sites sampled.
+# Since many of the degradation measures were low in beach sediments,
+# going to focus those figures on marine sediment.
+
+# Pyrogenic C results vs. d13C values at marine sites
+(F2A <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # removing beach data
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = D13C, y = PYC, fill = Depth_f, shape = Location_f)) +
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Depth", 
+                      values = c("#A1CAF6", "#4C6FA1", "#1E2F46"),
+                      labels = c("5 m", "10 m", "20 m"),
+                      guide = 'none' # remove legend
+    ) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(24, 25),
+                       labels = c("Goleta Bay West", "Goleta Bay East"),
+                       guide = 'none' # remove legend
+    ) +
+    labs(y = "% Pyrogenic Carbon",
+         x = expression("δ"^{13}*"C (‰)")) +
+    theme_bw())
+
+# Lambda results vs. d13C values at marine sites
+(F2B <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # removing beach data
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = D13C, y = LAM, fill = Depth_f, shape = Location_f)) +
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Depth", 
+                      values = c("#A1CAF6", "#4C6FA1", "#1E2F46"),
+                      labels = c("5 m", "10 m", "20 m")) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(24, 25),
+                       labels = c("Goleta Bay West", "Goleta Bay East")) +
+    labs(y = "Λ (mg/100 mg OC)",
+         x = expression("δ"^{13}*"C (‰)")) +
+    # have to override the aes for the legend
+    guides(fill = guide_legend(override.aes=list(shape=21))) +
+    theme_bw())
+
+# S/V vs. C/V values at marine sites
+(F2C <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # removing beach data
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = cv, y = sv, fill = Depth_f, shape = Location_f)) +
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Depth", 
+                      values = c("#A1CAF6", "#4C6FA1", "#1E2F46"),
+                      labels = c("5 m", "10 m", "20 m"),
+                      guide = 'none' # remove legend
+    ) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(24, 25),
+                       labels = c("Goleta Bay West", "Goleta Bay East"),
+                       guide = 'none' # remove legend
+    ) +
+    labs(y = "Syringyl / Vanillyl",
+         x = "Cinnamyl / Vanillyl") +
+    theme_bw())
+
+# P/V+S vs. 3,5Bd/V values at marine sites
+(F2D <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # removing beach data
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = bdv, y = pvs, fill = Depth_f, shape = Location_f)) +
+    geom_point(size = 3) +
+    scale_fill_manual(name = "Sampling Depth", 
+                      values = c("#A1CAF6", "#4C6FA1", "#1E2F46"),
+                      labels = c("5 m", "10 m", "20 m"),
+                      guide = 'none' # remove legend
+    ) +
+    scale_shape_manual(name = "Sampling Site",
+                       values = c(24, 25),
+                       labels = c("Goleta Bay West", "Goleta Bay East"),
+                       guide = 'none' # remove legend
+    ) +
+    labs(y = "P-hydroxyl / (Vanillyl + Syringyl)",
+         x = "3,5-Bd / Vanillyl") +
+    theme_bw())
+
+# Combine above plots into a single figure and export for easier viewing.
+(fig2_manuscript <- (F2A + F2B) / (F2C + F2D) +
+    plot_annotation(tag_levels = 'A'))
+
+ggsave(("figures/Fig3_pyc_lig.png"),
+       width = 20,
+       height = 16,
+       units = "cm"
+)
+
+# For sake of figure clarity, going to focus on site and depth, but leave discussion
+# of within core results to the results section of the text.
 
 #### Results calculations ####
 # Summary tables
