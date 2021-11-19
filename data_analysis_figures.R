@@ -1,4 +1,4 @@
-# Coastal Fund Data Exploration
+# Coastal Fund Data Analysis & Figure Creation
 # October 29, 2021
 # Heili Lowman
 
