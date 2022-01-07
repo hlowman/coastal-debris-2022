@@ -267,6 +267,117 @@ anova(bfinal)
 
 # Equation: log(pyC) = -0.42 + 0.03[Feb23] + 0.04[Apr24] + random + var(Site)
 # Fixed Effect (Date): F(2, 10) = 0.54, p = 0.60
-  
+
+#### ANOVAs: Marine Analytes ####
+
+# Running ANOVAs since no repeated sampling took place for the following analytes in marine sediment:
+# Lambda
+# PyC
+# S/V
+# C/V
+# P/V+S
+# 3,5 Bd/V
+
+## Lambda
+hist(dat_marine$Lambda)
+
+# anova by water depth - 5, 10, 20m
+dat_marine <- dat_marine %>%
+  mutate(logLambda = log10(Lambda)) %>% # log-transform Lambda values, as we did above
+  mutate(Water_Depth_f = factor(Water_Depth)) # make depth a factor for tukey's post hoc use
+
+hist(dat_marine$logLambda) # better
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest1 <- bartlett.test(logLambda ~ Water_Depth_f, data = dat_marine) # p = 0.31, so assumption met
+
+aov1 <- aov(logLambda ~ Water_Depth_f, data = dat_marine)
+summary(aov1) # p = 0.02
+
+# tukey's post-hoc
+# null hypothesis for each of the pair-wise comparisons is still no difference in means
+posthoc1 <- TukeyHSD(aov1)
+posthoc1 # 20-5 p = 0.02
+
+## PyC
+hist(dat_marine$pyC)
+
+dat_marine <- dat_marine %>%
+  mutate(logpyC = log10(pyC)) # log-transform pyC values, as we did above
+
+hist(dat_marine$logpyC) # better
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest2 <- bartlett.test(logpyC ~ Water_Depth_f, data = dat_marine) # p = 0.85, so assumption met
+
+aov2 <- aov(logpyC ~ Water_Depth_f, data = dat_marine)
+summary(aov2) # p = 0.2
+
+## S/V
+
+hist(dat_marine$SV)
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest3 <- bartlett.test(SV ~ Water_Depth_f, data = dat_marine) # p = 0.42, so assumption met
+
+aov3 <- aov(SV ~ Water_Depth_f, data = dat_marine)
+summary(aov3) # p = 0.17
+
+## C/V
+
+hist(dat_marine$CV)
+
+dat_marine <- dat_marine %>%
+  mutate(logCV = log10(CV)) # log-transform CV values
+
+hist(dat_marine$logCV) # yes, better
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest4 <- bartlett.test(logCV ~ Water_Depth_f, data = dat_marine) # p = 0.05, so assumption met
+
+aov4 <- aov(logCV ~ Water_Depth_f, data = dat_marine)
+summary(aov4) # p = 0.81
+
+## P/V+S
+
+hist(dat_marine$PVS)
+
+dat_marine <- dat_marine %>%
+  mutate(logPVS = log10(PVS)) # log-transform PVS values
+
+hist(dat_marine$logPVS) # eh, i'm going to stick with the raw values
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest5 <- bartlett.test(PVS ~ Water_Depth_f, data = dat_marine) # p = 0.52, so assumption met
+
+aov5 <- aov(PVS ~ Water_Depth_f, data = dat_marine)
+summary(aov5) # p = 0.26
+
+## 3,5 Bd/V
+
+hist(dat_marine$BdV)
+
+dat_marine <- dat_marine %>%
+  mutate(logBdV = log10(BdV)) # log-transform BdV values
+
+hist(dat_marine$logBdV) # also better
+
+# bartlett's test
+# testing null hypothesis that variances across all groups are equal
+vartest6 <- bartlett.test(logBdV ~ Water_Depth_f, data = dat_marine) # p = 0.24, so assumption met
+
+aov6 <- aov(logBdV ~ Water_Depth_f, data = dat_marine)
+summary(aov6) # p = 0.006
+
+# tukey's post-hoc
+# null hypothesis for each of the pair-wise comparisons is still no difference in means
+posthoc6 <- TukeyHSD(aov6)
+posthoc6 # 20-5 p = 0.004
+
 # End of script.
   
