@@ -268,9 +268,9 @@ anova(bfinal)
 # Equation: log(pyC) = -0.42 + 0.03[Feb23] + 0.04[Apr24] + random + var(Site)
 # Fixed Effect (Date): F(2, 10) = 0.54, p = 0.60
 
-#### ANOVAs: Marine Analytes ####
+#### LMs: Marine Analytes ####
 
-# Running ANOVAs since no repeated sampling took place for the following analytes in marine sediment:
+# Running linear models/anovas since no repeated sampling took place for the following analytes in marine sediment:
 # Lambda
 # PyC
 # S/V
@@ -278,28 +278,27 @@ anova(bfinal)
 # P/V+S
 # 3,5 Bd/V
 
-# anova by water depth - 5, 10, 20m
+# anova by water depth - 5, 10, 20m; site - GOLBW, GOLBE; core section - 0-10, 10-20
 
 ## Lambda
 hist(dat_marine$Lambda)
 
 dat_marine <- dat_marine %>%
   mutate(logLambda = log10(Lambda)) %>% # log-transform Lambda values, as we did above
-  mutate(Water_Depth_f = factor(Water_Depth)) # make depth a factor for tukey's post hoc use
+  mutate(Water_Depth_f = factor(Water_Depth)) %>% # make depth a factor for tukey's post hoc use
+  mutate(Core_Section_f = factor(Core_Section)) # make core section a factor as well
 
 hist(dat_marine$logLambda) # better
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest1 <- bartlett.test(logLambda ~ Water_Depth_f, data = dat_marine) # p = 0.31, so assumption met
-
-aov1 <- aov(logLambda ~ Water_Depth_f, data = dat_marine)
-summary(aov1) # p = 0.02
+lm1 <- lm(logLambda ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm1)
+# Water_Depth_f: p = 0.01
 
 # tukey's post-hoc
 # null hypothesis for each of the pair-wise comparisons is still no difference in means
-posthoc1 <- TukeyHSD(aov1)
-posthoc1 # 20-5 p = 0.02
+posthoc1 <- glht(lm1, linfct = mcp(Water_Depth_f = 'Tukey'))
+summary(posthoc1)
+# 20 - 5: p = 0.01
 
 ## PyC
 hist(dat_marine$pyC)
@@ -309,23 +308,28 @@ dat_marine <- dat_marine %>%
 
 hist(dat_marine$logpyC) # better
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest2 <- bartlett.test(logpyC ~ Water_Depth_f, data = dat_marine) # p = 0.85, so assumption met
+lm2 <- lm(logpyC ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm2)
+# Location_f: p = 0.003
+# Water_Depth_f: p = 0.005
 
-aov2 <- aov(logpyC ~ Water_Depth_f, data = dat_marine)
-summary(aov2) # p = 0.2
+# tukey's post-hoc
+# null hypothesis for each of the pair-wise comparisons is still no difference in means
+posthoc2 <- glht(lm2, linfct = mcp(Location_f = 'Tukey'))
+summary(posthoc2)
+# GOBE - GOBW: p = 0.0004
+
+posthoc3 <- glht(lm2, linfct = mcp(Water_Depth_f = 'Tukey'))
+summary(posthoc3)
+# 20 - 5: p = 0.006
 
 ## S/V
 
 hist(dat_marine$SV)
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest3 <- bartlett.test(SV ~ Water_Depth_f, data = dat_marine) # p = 0.42, so assumption met
-
-aov3 <- aov(SV ~ Water_Depth_f, data = dat_marine)
-summary(aov3) # p = 0.17
+lm3 <- lm(SV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm3)
+# None are significant
 
 ## C/V
 
@@ -336,12 +340,9 @@ dat_marine <- dat_marine %>%
 
 hist(dat_marine$logCV) # yes, better
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest4 <- bartlett.test(logCV ~ Water_Depth_f, data = dat_marine) # p = 0.05, so assumption met
-
-aov4 <- aov(logCV ~ Water_Depth_f, data = dat_marine)
-summary(aov4) # p = 0.81
+lm4 <- lm(logCV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm4)
+# None are significant
 
 ## P/V+S
 
@@ -352,12 +353,9 @@ dat_marine <- dat_marine %>%
 
 hist(dat_marine$logPVS) # eh, i'm going to stick with the raw values
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest5 <- bartlett.test(PVS ~ Water_Depth_f, data = dat_marine) # p = 0.52, so assumption met
-
-aov5 <- aov(PVS ~ Water_Depth_f, data = dat_marine)
-summary(aov5) # p = 0.26
+lm5 <- lm(logPVS ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm5)
+# None are significant
 
 ## 3,5 Bd/V
 
@@ -368,190 +366,16 @@ dat_marine <- dat_marine %>%
 
 hist(dat_marine$logBdV) # also better
 
-# bartlett's test
-# testing null hypothesis that variances across all groups are equal
-vartest6 <- bartlett.test(logBdV ~ Water_Depth_f, data = dat_marine) # p = 0.24, so assumption met
-
-aov6 <- aov(logBdV ~ Water_Depth_f, data = dat_marine)
-summary(aov6) # p = 0.006
+lm6 <- lm(logBdV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+anova(lm6)
+# Water_Depth_f: p = 0.005
 
 # tukey's post-hoc
 # null hypothesis for each of the pair-wise comparisons is still no difference in means
-posthoc6 <- TukeyHSD(aov6)
-posthoc6 # 20-5 p = 0.004
-
-#### T-tests: Marine Analytes ####
-
-# Running t-tests since no repeated sampling took place for the following analytes in marine sediment:
-# Lambda
-# PyC
-# S/V
-# C/V
-# P/V+S
-# 3,5 Bd/V
-
-# t-test by site - GOLBW, GOLBE
-# t-test by core section - 0-10, 10-20
-
-dat_marine <- dat_marine %>%
-  mutate(Core_Section_f = factor(Core_Section))
-
-## Lambda
-
-hist(dat_marine$logLambda)
-plot(dat_marine$Location_f, dat_marine$logLambda)
-plot(dat_marine$Core_Section_f, dat_marine$logLambda)
-
-vt1 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, logLambda) %>%
-  pivot_wider(names_from = Location_f, values_from = logLambda)
-
-# testing null hypothesis that variances across all groups are equal
-var1 <- var.test(vt1$GOBW, vt1$GOBE) # p = 0.04, so null hypothesis disproven
-
-# need to use Mann-Whitney U test instead, since assumptions were not met
-wt1 <- wilcox.test(logLambda ~ Location_f, data = dat_marine)
-wt1 # p = 0.94
-
-vt2 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, logLambda) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = logLambda)
-
-# testing null hypothesis that variances across all groups are equal
-var2 <- var.test(vt2$`0-10`, vt2$`10-20`) # p = 0.69, so assumption met
-
-tt2 <- t.test(logLambda ~ Core_Section, data = dat_marine)
-tt2 # p = 0.75
-
-## PyC
-
-hist(dat_marine$logpyC)
-plot(dat_marine$Location_f, dat_marine$logpyC)
-plot(dat_marine$Core_Section_f, dat_marine$logpyC)
-
-vt3 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, logpyC) %>%
-  pivot_wider(names_from = Location_f, values_from = logpyC)
-
-# testing null hypothesis that variances across all groups are equal
-var3 <- var.test(vt3$GOBW, vt3$GOBE) # p = 0.23, so assumption met
-
-tt3 <- t.test(logpyC ~ Location_f, data = dat_marine)
-tt3 # p = 0.009
-
-vt4 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, logpyC) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = logpyC)
-
-# testing null hypothesis that variances across all groups are equal
-var4 <- var.test(vt4$`0-10`, vt4$`10-20`) # p = 0.29, so assumption met
-
-tt4 <- t.test(logpyC ~ Core_Section, data = dat_marine)
-tt4 # p = 0.33
-
-## S/V
-
-hist(dat_marine$SV)
-plot(dat_marine$Location_f, dat_marine$SV)
-plot(dat_marine$Core_Section_f, dat_marine$SV)
-
-vt5 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, SV) %>%
-  pivot_wider(names_from = Location_f, values_from = SV)
-
-# testing null hypothesis that variances across all groups are equal
-var5 <- var.test(vt5$GOBW, vt5$GOBE) # p = 0.85, so assumption met
-
-tt5 <- t.test(SV ~ Location_f, data = dat_marine)
-tt5 # p = 0.92
-
-vt6 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, SV) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = SV)
-
-# testing null hypothesis that variances across all groups are equal
-var6 <- var.test(vt6$`0-10`, vt6$`10-20`) # p = 0.77, so assumption met
-
-tt6 <- t.test(SV ~ Core_Section, data = dat_marine)
-tt6 # p = 0.95
-
-## C/V
-
-hist(dat_marine$logCV)
-plot(dat_marine$Location_f, dat_marine$logCV)
-plot(dat_marine$Core_Section_f, dat_marine$logCV)
-
-vt7 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, logCV) %>%
-  pivot_wider(names_from = Location_f, values_from = logCV)
-
-# testing null hypothesis that variances across all groups are equal
-var7 <- var.test(vt7$GOBW, vt7$GOBE) # p = 0.14, so assumption met
-
-tt7 <- t.test(logCV ~ Location_f, data = dat_marine)
-tt7 # p = 0.36
-
-vt8 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, logCV) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = logCV)
-
-# testing null hypothesis that variances across all groups are equal
-var8 <- var.test(vt8$`0-10`, vt8$`10-20`) # p = 0.97, so assumption met
-
-tt8 <- t.test(logCV ~ Core_Section, data = dat_marine)
-tt8 # p = 0.23
-
-## P/V+S
-
-hist(dat_marine$logPVS)
-plot(dat_marine$Location_f, dat_marine$logPVS)
-plot(dat_marine$Core_Section_f, dat_marine$logPVS)
-
-vt9 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, logPVS) %>%
-  pivot_wider(names_from = Location_f, values_from = logPVS)
-
-# testing null hypothesis that variances across all groups are equal
-var9 <- var.test(vt9$GOBW, vt9$GOBE) # p = 0.14, so assumption met
-
-tt9 <- t.test(logPVS ~ Location_f, data = dat_marine)
-tt9 # p = 0.40
-
-vt10 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, logPVS) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = logPVS)
-
-# testing null hypothesis that variances across all groups are equal
-var10 <- var.test(vt10$`0-10`, vt10$`10-20`) # p = 0.33, so assumption met
-
-tt10 <- t.test(logPVS ~ Core_Section, data = dat_marine)
-tt10 # p = 0.79
-
-## 3,5Bd/V
-
-hist(dat_marine$logBdV)
-plot(dat_marine$Location_f, dat_marine$logBdV)
-plot(dat_marine$Core_Section_f, dat_marine$logBdV)
-
-vt11 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Location_f, logBdV) %>%
-  pivot_wider(names_from = Location_f, values_from = logBdV)
-
-# testing null hypothesis that variances across all groups are equal
-var11 <- var.test(vt11$GOBW, vt11$GOBE) # p = 0.10, so assumption met
-
-tt11 <- t.test(logBdV ~ Location_f, data = dat_marine)
-tt11 # p = 0.82
-
-vt12 <- dat_marine %>%
-  dplyr::select(UF_Sample_id, Core_Section_f, logBdV) %>%
-  pivot_wider(names_from = Core_Section_f, values_from = logBdV)
-
-# testing null hypothesis that variances across all groups are equal
-var12 <- var.test(vt12$`0-10`, vt12$`10-20`) # p = 0.91, so assumption met
-
-tt12 <- t.test(logBdV ~ Core_Section, data = dat_marine)
-tt12 # p = 0.73
+posthoc4 <- glht(lm6, linfct = mcp(Water_Depth_f = 'Tukey'))
+summary(posthoc4)
+# 10 - 5: p = 0.049
+# 20 - 5: p = 0.004
 
 # End of script.
   
