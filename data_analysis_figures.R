@@ -2,7 +2,7 @@
 # October 29, 2021
 # Heili Lowman
 
-# The following script will do a bit of data exploration with the newly
+# The following script will do a bit of data exploration and analysis with the newly
 # curated dataset combining both lignin and pyC measures.
 
 # Load packages
