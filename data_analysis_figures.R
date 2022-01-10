@@ -323,8 +323,33 @@ m <- dat_ed %>%
             meanBDV = mean(BdV, na.rm = TRUE),
             sdBDV = sd(BdV, na.rm = TRUE))
 
-# by beaches only (not including deposition site)
+# by beaches only (not including deposition site or low-tide line)
+dlist <- c("DD", "MD")
+
 m1 <- dat_ed %>%
+  mutate(Location_f = factor(case_when(Location_id %in% dlist ~ "DD",
+                                       TRUE ~ Location_id))) %>%
+  filter(Location_f != "CD") %>%
+  group_by(Date) %>%
+  summarize(meanOC = mean(perc_OC, na.rm = TRUE),
+            sdOC = sd(perc_OC, na.rm = TRUE),
+            meand13C = mean(d13C, na.rm = TRUE),
+            sdd13C = sd(d13C, na.rm = TRUE),
+            meanpyC = mean(pyC, na.rm = TRUE),
+            sdpyC = sd(pyC, na.rm = TRUE),
+            meanLAM = mean(Lambda, na.rm = TRUE),
+            sdLAM = sd(Lambda, na.rm = TRUE),
+            meanSV = mean(SV, na.rm = TRUE),
+            sdSV = sd(SV, na.rm = TRUE),
+            meanCV = mean(CV, na.rm = TRUE),
+            sdCV = sd(CV, na.rm = TRUE),
+            meanPVS = mean(PVS, na.rm = TRUE),
+            sdPVS = sd(PVS, na.rm = TRUE),
+            meanBDV = mean(BdV, na.rm = TRUE),
+            sdBDV = sd(BdV, na.rm = TRUE))
+
+# by beaches only (not including low-tide line)
+m1.2 <- dat_ed %>%
   filter(Location_id %in% c("GBEA", "GOSL")) %>%
   group_by(Date) %>%
   summarize(meanOC = mean(perc_OC, na.rm = TRUE),
