@@ -2,7 +2,7 @@
 # January 7, 2022
 # Heili Lowman
 
-# The following script will create a series of linear mixed effect modesl with the newly
+# The following script will create a series of linear mixed effect models with the newly
 # curated dataset combining both lignin and pyC measures.
 
 #### Setup and Load-in ####
@@ -270,7 +270,7 @@ anova(bfinal)
 
 #### LMs: Marine Analytes ####
 
-# Running linear models/anovas since no repeated sampling took place for the following analytes in marine sediment:
+# Running multiple linear regressions since no repeated sampling took place for the following analytes in marine sediment:
 # Lambda
 # PyC
 # S/V
@@ -278,19 +278,24 @@ anova(bfinal)
 # P/V+S
 # 3,5 Bd/V
 
-# anova by water depth - 5, 10, 20m; site - GOLBW, GOLBE; core section - 0-10, 10-20
+# comparisons by water depth - 5, 10, 20m; site - GOLBW, GOLBE; core section - 0-10, 10-20
 
 ## Lambda
 hist(dat_marine$Lambda)
 
 dat_marine <- dat_marine %>%
   mutate(logLambda = log10(Lambda)) %>% # log-transform Lambda values, as we did above
+  mutate(Location_f = factor(Location_id)) %>% # make site a factor
   mutate(Water_Depth_f = factor(Water_Depth)) %>% # make depth a factor for tukey's post hoc use
   mutate(Core_Section_f = factor(Core_Section)) # make core section a factor as well
 
 hist(dat_marine$logLambda) # better
 
 lm1 <- lm(logLambda ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm1)
+# Water_Depth_f20: p = 0.004
+
 anova(lm1)
 # Water_Depth_f: p = 0.01
 
@@ -309,6 +314,11 @@ dat_marine <- dat_marine %>%
 hist(dat_marine$logpyC) # better
 
 lm2 <- lm(logpyC ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm2)
+# Location_fGOBW: p = 0.0004
+# Water_Depth_f20: p = 0.002
+
 anova(lm2)
 # Location_f: p = 0.003
 # Water_Depth_f: p = 0.005
@@ -328,6 +338,9 @@ summary(posthoc3)
 hist(dat_marine$SV)
 
 lm3 <- lm(SV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm3)
+
 anova(lm3)
 # None are significant
 
@@ -341,6 +354,9 @@ dat_marine <- dat_marine %>%
 hist(dat_marine$logCV) # yes, better
 
 lm4 <- lm(logCV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm4)
+
 anova(lm4)
 # None are significant
 
@@ -354,6 +370,9 @@ dat_marine <- dat_marine %>%
 hist(dat_marine$logPVS) # eh, i'm going to stick with the raw values
 
 lm5 <- lm(logPVS ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm5)
+
 anova(lm5)
 # None are significant
 
@@ -367,6 +386,11 @@ dat_marine <- dat_marine %>%
 hist(dat_marine$logBdV) # also better
 
 lm6 <- lm(logBdV ~ Location_f + Water_Depth_f + Core_Section_f, data = dat_marine)
+
+summary(lm6)
+# Water_Depth_f10: p = 0.02
+# Water_Depth_f20: p = 0. 002
+
 anova(lm6)
 # Water_Depth_f: p = 0.005
 
