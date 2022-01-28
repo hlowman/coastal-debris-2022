@@ -127,7 +127,7 @@ dat_plots <- summary2 %>%
 #        units = "cm"
 # )
 
-#### Manuscript Figure 1 ####
+#### Manuscript Figure 2 ####
 dat_F1A <- dat_ed %>%
   group_by(Location_f, Date) %>%
   summarize(D13C = mean(d13C, na.rm = TRUE), 
@@ -163,6 +163,28 @@ dat_F1A <- dat_ed %>%
     labs(y = "% Pyrogenic Carbon",
          x = expression("δ"^{13}*"C (‰)")) +
     theme_bw())
+
+# For clarity, I'm going to plot these through time, rather than against d13C
+date_labels <- c("February 2", "February 23", "April 24")
+site_labels <- c(`DDS` = "Debris Deposition Site",
+                 `GBEA` = "Goleta Beach",
+                 `GOSL` = "Goleta Slough")
+(fig_beachpyc <- dat_plots %>%
+    filter(Environment_f == "Beach") %>% # only beach samples
+    filter(Location_f != "CD") %>% # remove the clay debris layer
+    mutate(Location_b = factor(loc_plot)) %>%
+    mutate(Date_f = factor(case_when(Date == "2018-02-02" ~ "A",
+                                     Date == "2018-02-23" ~ "B",
+                                     Date == "2018-04-24" ~ "C"))) %>% # add new column for date as factor
+    ggplot(aes(x = Date_f, y = PYC)) +
+    geom_point() +
+    geom_pointrange(aes(ymin=PYC-sdPYC, ymax=PYC+sdPYC)) +
+    labs(x = "Date", y = "% Pyrogenic Carbon") +
+    scale_x_discrete(labels = date_labels) +
+    facet_wrap(.~Location_b,
+               labeller = as_labeller(site_labels)) +
+    theme_bw() +
+    theme(legend.position = "none"))
 
 # Lambda results vs. d13C values at all sites
 (F1B <- dat_F1A %>%
@@ -327,9 +349,7 @@ m <- dat_ed %>%
 dlist <- c("DD", "MD")
 
 m1 <- dat_ed %>%
-  mutate(Location_f = factor(case_when(Location_id %in% dlist ~ "DD",
-                                       TRUE ~ Location_id))) %>%
-  filter(Location_f != "CD") %>%
+  filter(Location_id %in% c("GBEA", "GOSL")) %>%
   group_by(Date) %>%
   summarize(meanOC = mean(perc_OC, na.rm = TRUE),
             sdOC = sd(perc_OC, na.rm = TRUE),
@@ -350,7 +370,10 @@ m1 <- dat_ed %>%
 
 # by beaches only (not including low-tide line)
 m1.2 <- dat_ed %>%
-  filter(Location_id %in% c("GBEA", "GOSL")) %>%
+  filter(Environment_f == "Beach") %>%
+  mutate(Location_f = factor(case_when(Location_id %in% dlist ~ "DD",
+                                       TRUE ~ Location_id))) %>%
+  filter(Location_f != "CD") %>%
   group_by(Date) %>%
   summarize(meanOC = mean(perc_OC, na.rm = TRUE),
             sdOC = sd(perc_OC, na.rm = TRUE),
