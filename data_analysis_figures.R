@@ -430,7 +430,7 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
 
 # ggsave(("figures/Fig4_paneled_marine_deg.png"),
 #        width = 20,
-#        height = 10,
+#        height = 8,
 #        units = "cm"
 # )
 
