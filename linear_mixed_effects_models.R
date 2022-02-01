@@ -171,7 +171,7 @@ summary(aHSD) # February 2 & April 24 significantly different from one another (
 # model structure:
 # Lambda ~ Date + 1 | Site / Replicate
 
-# Similar to model above, using Site as a fixed effect yielded NaNs, so I've removed it
+# Similar to model above, using Site as a fixed effect yielded NaNs due to low sample size/power, so I've removed it
 # from the model below, and focused instead on changes through time.
 
 # Examine data

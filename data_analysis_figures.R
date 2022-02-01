@@ -182,9 +182,12 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     labs(x = "Date", y = "% Pyrogenic Carbon") +
     scale_x_discrete(labels = date_labels) +
     facet_wrap(.~Location_b,
-               labeller = as_labeller(site_labels)) +
+               nrow = 3,
+               labeller = as_labeller(site_labels),
+               scales = "free") +
     theme_bw() +
-    theme(legend.position = "none"))
+    theme(strip.background = element_rect(color="black", fill=NA, linetype="solid"),
+    legend.position = "none"))
 
 # Lambda results vs. d13C values at all sites
 (F1B <- dat_F1A %>%
@@ -203,15 +206,45 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     guides(fill = guide_legend(override.aes=list(shape=21))) +
     theme_bw())
 
+# create similar paneled lambda figure as above
+(fig_beachlam <- dat_plots %>%
+    filter(Environment_f == "Beach") %>% # only beach samples
+    filter(Location_f != "CD") %>% # remove the clay debris layer
+    mutate(Location_b = factor(loc_plot)) %>%
+    mutate(Date_f = factor(case_when(Date == "2018-02-02" ~ "A",
+                                     Date == "2018-02-23" ~ "B",
+                                     Date == "2018-04-24" ~ "C"))) %>% # add new column for date as factor
+    ggplot(aes(x = Date_f, y = LAM)) +
+    geom_point() +
+    geom_pointrange(aes(ymin=LAM-sdLAM, ymax=LAM+sdLAM)) +
+    labs(x = "Date", y = "Λ (mg/100 mg OC)") +
+    scale_x_discrete(labels = date_labels) +
+    facet_wrap(.~Location_b,
+               nrow = 3,
+               labeller = as_labeller(site_labels),
+               scales = "free") +
+    theme_bw() +
+    theme(strip.background = element_rect(color="black", fill=NA, linetype="solid"),
+          legend.position = "none"))
+
 # Combine above plots into a single figure and export for easier viewing.
 (fig1_manuscript <- (F1A + F1B) +
     plot_annotation(tag_levels = 'A'))
 
-ggsave(("figures/Fig2_pyc_lam.png"),
-       width = 20,
-       height = 8,
-       units = "cm"
-)
+# ggsave(("figures/Fig2_pyc_lam.png"),
+#        width = 20,
+#        height = 8,
+#        units = "cm"
+# )
+
+(fig_panels_manuscript <- (fig_beachpyc + fig_beachlam) +
+    plot_annotation(tag_levels = 'A'))
+
+# ggsave(("figures/Fig2_paneled_freescales_pyc_lam.png"),
+#        width = 15,
+#        height = 15,
+#        units = "cm"
+# )
 
 # SV vs. CV values at all sites
 (fig5 <- dat_plots %>%
@@ -252,6 +285,20 @@ ggsave(("figures/Fig2_pyc_lam.png"),
          x = expression("δ"^{13}*"C (‰)")) +
     theme_bw())
 
+# making clearer plots after Andy's suggestions
+(fig_marpyc <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # only beach samples
+    mutate(Location_m = factor(loc_plot)) %>%
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = Depth_f, y = PYC, color = Location_m)) +
+    geom_point(position=position_dodge(width=0.5)) +
+    geom_pointrange(aes(ymin=PYC-sdPYC, ymax=PYC+sdPYC),
+                    position=position_dodge(width=0.5)) +
+    scale_color_manual(values = c("#0FB2D3", "#026779")) +
+    labs(x = "Water Depth (m)", y = "% Pyrogenic Carbon", color = "Site") +
+    theme_bw() +
+    theme(legend.position = "none"))
+
 # Lambda results vs. d13C values at marine sites
 (F2B <- dat_plots %>%
     filter(Environment_f == "Ocean") %>% # removing beach data
@@ -269,6 +316,29 @@ ggsave(("figures/Fig2_pyc_lam.png"),
     # have to override the aes for the legend
     guides(fill = guide_legend(override.aes=list(shape=21))) +
     theme_bw())
+
+# making clearer plots after Andy's suggestions
+(fig_marlam <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # only beach samples
+    mutate(Location_m = factor(loc_plot)) %>%
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = Depth_f, y = LAM, color = Location_m)) +
+    geom_point(position=position_dodge(width=0.5)) +
+    geom_pointrange(aes(ymin=LAM-sdLAM, ymax=LAM+sdLAM),
+                    position=position_dodge(width=0.5)) +
+    scale_color_manual(values = c("#0FB2D3", "#026779"),
+                       labels = c("West Goleta Bay", "East Goleta Bay")) +
+    labs(x = "Water Depth (m)", y = "Λ (mg/100 mg OC)", color = "Site") +
+    theme_bw())
+
+(fig_panels_marine_manuscript <- (fig_marpyc + fig_marlam) +
+    plot_annotation(tag_levels = 'A'))
+
+# ggsave(("figures/Fig3_paneled_marine_pyc_lam.png"),
+#        width = 18,
+#        height = 8,
+#        units = "cm"
+# )
 
 # S/V vs. C/V values at marine sites
 (F2C <- dat_plots %>%
@@ -290,6 +360,24 @@ ggsave(("figures/Fig2_pyc_lam.png"),
          x = "Cinnamyl / Vanillyl") +
     theme_bw())
 
+# making clearer plots after Andy's suggestions
+(fig_mar_svcv <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # only beach samples
+    mutate(Location_m = factor(loc_plot)) %>%
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = cv, y = sv, color = Location_m)) +
+    geom_point(aes(shape = Depth_f), size = 3) +
+    geom_errorbar(aes(ymin=sv-sdsv, ymax=sv+sdsv)) +
+    geom_errorbarh(aes(xmin=cv-sdcv, xmax=cv+sdcv)) +
+    scale_color_manual(values = c("#0FB2D3", "#026779"),
+                       labels = c("West Goleta Bay", "East Goleta Bay")) +
+    labs(x = "Cinnamyl / Vanillyl", 
+         y = "Syringyl / Vanillyl", 
+         color = "Site",
+         shape = "Water Depth (m)") +
+    theme_bw() +
+    theme(legend.position = "none"))
+
 # P/V+S vs. 3,5Bd/V values at marine sites
 (F2D <- dat_plots %>%
     filter(Environment_f == "Ocean") %>% # removing beach data
@@ -310,15 +398,41 @@ ggsave(("figures/Fig2_pyc_lam.png"),
          x = "3,5-Bd / Vanillyl") +
     theme_bw())
 
+# making clearer plots after Andy's suggestions
+(fig_mar_pvsbdv <- dat_plots %>%
+    filter(Environment_f == "Ocean") %>% # only beach samples
+    mutate(Location_m = factor(loc_plot)) %>%
+    mutate(Depth_f = factor(Water_Depth)) %>%
+    ggplot(aes(x = bdv, y = pvs, color = Location_m)) +
+    geom_point(aes(shape = Depth_f), size = 3) +
+    geom_errorbar(aes(ymin=pvs-sdpvs, ymax=pvs+sdpvs)) +
+    geom_errorbarh(aes(xmin=bdv-sdbdv, xmax=bdv+sdbdv)) +
+    scale_color_manual(values = c("#0FB2D3", "#026779"),
+                       labels = c("West Goleta Bay", "East Goleta Bay")) +
+    labs(x = "3,5-Bd / Vanillyl", 
+         y = "P-hydroxyl / (Vanillyl + Syringyl)", 
+         color = "Site",
+         shape = "Water Depth (m)") +
+    theme_bw())
+
 # Combine above plots into a single figure and export for easier viewing.
 (fig2_manuscript <- (F2A + F2B) / (F2C + F2D) +
     plot_annotation(tag_levels = 'A'))
 
-ggsave(("figures/Fig3_pyc_lig.png"),
-       width = 20,
-       height = 16,
-       units = "cm"
-)
+# ggsave(("figures/Fig3_pyc_lig.png"),
+#        width = 20,
+#        height = 16,
+#        units = "cm"
+# )
+
+(fig_panels_marine2_manuscript <- (fig_mar_svcv + fig_mar_pvsbdv) +
+    plot_annotation(tag_levels = 'A'))
+
+# ggsave(("figures/Fig4_paneled_marine_deg.png"),
+#        width = 20,
+#        height = 10,
+#        units = "cm"
+# )
 
 # For sake of figure clarity, going to focus on site and depth, but leave discussion
 # of within core results to the results section of the text.
