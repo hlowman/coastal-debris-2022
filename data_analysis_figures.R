@@ -367,8 +367,8 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     mutate(Depth_f = factor(Water_Depth)) %>%
     ggplot(aes(x = cv, y = sv, color = Location_m)) +
     geom_point(aes(shape = Depth_f), size = 3) +
-    geom_errorbar(aes(ymin=sv-sdsv, ymax=sv+sdsv)) +
-    geom_errorbarh(aes(xmin=cv-sdcv, xmax=cv+sdcv)) +
+    geom_linerange(aes(ymin=sv-sdsv, ymax=sv+sdsv)) +
+    geom_linerange(aes(xmin=cv-sdcv, xmax=cv+sdcv)) +
     scale_color_manual(values = c("#0FB2D3", "#026779"),
                        labels = c("West Goleta Bay", "East Goleta Bay")) +
     labs(x = "Cinnamyl / Vanillyl", 
@@ -405,8 +405,8 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     mutate(Depth_f = factor(Water_Depth)) %>%
     ggplot(aes(x = bdv, y = pvs, color = Location_m)) +
     geom_point(aes(shape = Depth_f), size = 3) +
-    geom_errorbar(aes(ymin=pvs-sdpvs, ymax=pvs+sdpvs)) +
-    geom_errorbarh(aes(xmin=bdv-sdbdv, xmax=bdv+sdbdv)) +
+    geom_linerange(aes(ymin=pvs-sdpvs, ymax=pvs+sdpvs)) +
+    geom_linerange(aes(xmin=bdv-sdbdv, xmax=bdv+sdbdv)) +
     scale_color_manual(values = c("#0FB2D3", "#026779"),
                        labels = c("West Goleta Bay", "East Goleta Bay")) +
     labs(x = "3,5-Bd / Vanillyl", 
