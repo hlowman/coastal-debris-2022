@@ -166,7 +166,7 @@ dat_F1A <- dat_ed %>%
 
 # For clarity, I'm going to plot these through time, rather than against d13C
 date_labels <- c("February 2", "February 23", "April 24")
-site_labels <- c(`DDS` = "Debris Deposition Site",
+site_labels <- c(`DDS` = "Disposal Site",
                  `GBEA` = "Goleta Beach",
                  `GOSL` = "Goleta Slough")
 (fig_beachpyc <- dat_plots %>%
@@ -183,10 +183,9 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     scale_x_discrete(labels = date_labels) +
     facet_wrap(.~Location_b,
                nrow = 3,
-               labeller = as_labeller(site_labels),
-               scales = "free") +
+               labeller = as_labeller(site_labels)) +
     theme_bw() +
-    theme(strip.background = element_rect(color="black", fill=NA, linetype="solid"),
+    theme(strip.background = element_blank(),
     legend.position = "none"))
 
 # Lambda results vs. d13C values at all sites
@@ -221,10 +220,9 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
     scale_x_discrete(labels = date_labels) +
     facet_wrap(.~Location_b,
                nrow = 3,
-               labeller = as_labeller(site_labels),
-               scales = "free") +
+               labeller = as_labeller(site_labels)) +
     theme_bw() +
-    theme(strip.background = element_rect(color="black", fill=NA, linetype="solid"),
+    theme(strip.background = element_blank(),
           legend.position = "none"))
 
 # Combine above plots into a single figure and export for easier viewing.
@@ -240,7 +238,7 @@ site_labels <- c(`DDS` = "Debris Deposition Site",
 (fig_panels_manuscript <- (fig_beachpyc + fig_beachlam) +
     plot_annotation(tag_levels = 'A'))
 
-# ggsave(("figures/Fig2_paneled_freescales_pyc_lam.png"),
+# ggsave(("figures/Fig2_paneled_fixscales_pyc_lam.png"),
 #        width = 15,
 #        height = 15,
 #        units = "cm"
