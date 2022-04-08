@@ -181,7 +181,7 @@ site_labels <- c(`DDS` = "Disposal Site",
     geom_pointrange(aes(ymin=PYC-sdPYC, ymax=PYC+sdPYC)) +
     labs(x = "Date", y = "% Pyrogenic Carbon") +
     scale_x_discrete(labels = date_labels) +
-    facet_wrap(.~Location_b,
+    facet_wrap(.~Location_b, scales = "free",
                nrow = 3,
                labeller = as_labeller(site_labels)) +
     theme_bw() +
@@ -218,7 +218,7 @@ site_labels <- c(`DDS` = "Disposal Site",
     geom_pointrange(aes(ymin=LAM-sdLAM, ymax=LAM+sdLAM)) +
     labs(x = "Date", y = "Λ (mg/100 mg OC)") +
     scale_x_discrete(labels = date_labels) +
-    facet_wrap(.~Location_b,
+    facet_wrap(.~Location_b, scales = "free",
                nrow = 3,
                labeller = as_labeller(site_labels)) +
     theme_bw() +
@@ -238,7 +238,7 @@ site_labels <- c(`DDS` = "Disposal Site",
 (fig_panels_manuscript <- (fig_beachpyc + fig_beachlam) +
     plot_annotation(tag_levels = 'A'))
 
-# ggsave(("figures/Fig2_paneled_fixscales_pyc_lam.png"),
+# ggsave(("figures/Fig2_paneled_freescales_pyc_lam.png"),
 #        width = 15,
 #        height = 15,
 #        units = "cm"
