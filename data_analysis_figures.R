@@ -11,6 +11,7 @@ library(here)
 library(lubridate)
 library(calecopal)
 library(patchwork)
+library(ggbreak)
 
 # Load data
 dat <- read_csv("data_raw/lignin_pyc_results.csv") 
@@ -169,6 +170,7 @@ date_labels <- c("February 2", "February 23", "April 24")
 site_labels <- c(`DDS` = "Disposal Site",
                  `GBEA` = "Goleta Beach",
                  `GOSL` = "Goleta Slough")
+
 (fig_beachpyc <- dat_plots %>%
     filter(Environment_f == "Beach") %>% # only beach samples
     filter(Location_f != "CD") %>% # remove the clay debris layer
@@ -187,6 +189,24 @@ site_labels <- c(`DDS` = "Disposal Site",
     theme_bw() +
     theme(strip.background = element_blank(),
     legend.position = "none"))
+
+(fig_beachpyc2 <- dat_plots %>%
+    filter(Environment_f == "Beach") %>% # only beach samples
+    filter(Location_f != "CD") %>% # remove the clay debris layer
+    mutate(Location_b = factor(loc_plot)) %>%
+    # add new column for date as factor
+    mutate(Date_f = factor(case_when(Date == "2018-02-02" ~ "A",
+                                     Date == "2018-02-23" ~ "B",
+                                     Date == "2018-04-24" ~ "C"))) %>%
+    ggplot(aes(x = Date_f, y = PYC, color = Location_b)) +
+    geom_pointrange(aes(ymin=PYC-sdPYC, ymax=PYC+sdPYC), 
+                    position = position_dodge(width = 0.5)) +
+    #scale_y_break(c(1, 4.4), scales = 0.25) + # adds break in y axis to reduce white space
+    scale_color_manual(values = cal_palette("oak")) + # oak palette from calecopal
+    labs(x = "Date", y = "% Pyrogenic Carbon") +
+    scale_x_discrete(labels = date_labels) +
+    theme_bw() +
+    theme(legend.position = "none"))
 
 # Lambda results vs. d13C values at all sites
 (F1B <- dat_F1A %>%
@@ -225,6 +245,22 @@ site_labels <- c(`DDS` = "Disposal Site",
     theme(strip.background = element_blank(),
           legend.position = "none"))
 
+(fig_beachlam2 <- dat_plots %>%
+    filter(Environment_f == "Beach") %>% # only beach samples
+    filter(Location_f != "CD") %>% # remove the clay debris layer
+    mutate(Location_b = factor(loc_plot)) %>%
+    mutate(Date_f = factor(case_when(Date == "2018-02-02" ~ "A",
+                                     Date == "2018-02-23" ~ "B",
+                                     Date == "2018-04-24" ~ "C"))) %>% # add new column for date as factor
+    ggplot(aes(x = Date_f, y = LAM, color = Location_b)) +
+    geom_pointrange(aes(ymin=LAM-sdLAM, ymax=LAM+sdLAM),
+                    position = position_dodge(width = 0.5)) +
+    labs(x = "Date", y = "Λ (mg/100 mg OC)", color = "Site") +
+    scale_color_manual(values = cal_palette("oak"), labels = site_labels) +
+    scale_x_discrete(labels = date_labels) +
+    #scale_y_break(c(0.9, 1.1), scales = 0.25) + # adds break in y axis to reduce white space
+    theme_bw())
+
 # Combine above plots into a single figure and export for easier viewing.
 (fig1_manuscript <- (F1A + F1B) +
     plot_annotation(tag_levels = 'A'))
@@ -241,6 +277,15 @@ site_labels <- c(`DDS` = "Disposal Site",
 # ggsave(("figures/Fig2_paneled_freescales_pyc_lam.png"),
 #        width = 15,
 #        height = 15,
+#        units = "cm"
+# )
+
+(fig_panels_manuscript2 <- (fig_beachpyc2 + fig_beachlam2) +
+    plot_annotation(tag_levels = 'A'))
+
+# ggsave(("figures/Fig2.2_pyc_lam.png"),
+#        width = 18,
+#        height = 8,
 #        units = "cm"
 # )
 
