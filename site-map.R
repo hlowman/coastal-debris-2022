@@ -177,7 +177,7 @@ gslough_plot <- ggplot() +
 # Export map.
 
 # ggsave(fig1,
-#        filename = "figures/Fig1_map.png",
+#        filename = "figures/Fig1_map_0622.png",
 #        width = 40,
 #        height = 20,
 #        units = "cm"
