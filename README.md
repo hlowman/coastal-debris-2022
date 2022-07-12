@@ -6,3 +6,5 @@ Repository containing data and scripts for the following manuscript:
 All data can be downloaded from the [Santa Barbara Coastal Long Term Ecological Research Program's data portal](https://sbclter.msi.ucsb.edu/data/catalog/package/?package=knb-lter-sbc.151).
 
 For additional support or information regarding this project, please contact Heili at hlowman *at* unr.edu.
+
+![graphical abstract](Lowman_graphical_abstract.jpg) 
